@@ -85,7 +85,7 @@ jobs:
 
       - name: Guardar reporte de mutantes
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mutmut-report
           path: backend/mutants/mutmut-cicd-stats.json
