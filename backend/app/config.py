@@ -38,8 +38,8 @@ if not DATABASE_URL:
     # SonarCloud (regla de seguridad, Bloqueador): antes había un valor por defecto
     # con MySQL sin contraseña. Ahora la conexión debe configurarse explícitamente.
     raise RuntimeError(
-        "Falta SITRAL_DATABASE_URL en backend/.env "
-        "(ejemplo: mysql+pymysql://usuario:contraseña@localhost/SITRAL)"
+        "Falta SITRAL_DATABASE_URL en backend/.env. "
+        "Copie backend/.env.example como backend/.env y escriba ahí la conexión a MySQL."
     )
 SQL_ECHO = _bool("SITRAL_SQL_ECHO", False)
 
