@@ -58,7 +58,7 @@ export function openScanner({
       // Si el modal se cierra por otra vía (clic fuera, tecla Esc),
       // igual se debe liberar la cámara.
       const observer = new MutationObserver(() => {
-        if (backdrop.hidden) { stopActiveScanner(); observer.disconnect(); }
+        if (backdrop.hidden) { void stopActiveScanner(); observer.disconnect(); }
       });
       observer.observe(backdrop, { attributes: true, attributeFilter: ["hidden"] });
 
@@ -77,7 +77,7 @@ export function openScanner({
       box.querySelector("#scan-manual-btn").addEventListener("click", () => {
         const val = manualInput.value.trim();
         if (!val) { toast("Escribe o escanea un código.", "error"); return; }
-        finish(val);
+        void finish(val);
       });
       manualInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") { e.preventDefault(); box.querySelector("#scan-manual-btn").click(); }

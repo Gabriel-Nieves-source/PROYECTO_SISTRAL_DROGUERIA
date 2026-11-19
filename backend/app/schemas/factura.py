@@ -54,10 +54,10 @@ class FacturaRespuesta(BaseModel):
 
     id_factura: int
     id_usuario: int
-    id_proveedor: Optional[int]
+    id_proveedor: Optional[int] = None
     numero_factura: str
     tipo: str
-    fecha: Optional[datetime]
+    fecha: Optional[datetime] = None
     total: Decimal
     estado: str
     detalles: List[DetalleFacturaRespuesta] = []

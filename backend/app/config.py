@@ -33,7 +33,14 @@ JWT_EXPIRE_MINUTES = int(os.getenv("SITRAL_JWT_EXPIRE_MINUTES", "60"))
 JWT_ISSUER = "sitral-api"
 JWT_AUDIENCE = "sitral-web"
 
-DATABASE_URL = os.getenv("SITRAL_DATABASE_URL", "mysql+pymysql://root:@localhost/SITRAL")
+DATABASE_URL = os.getenv("SITRAL_DATABASE_URL", "")
+if not DATABASE_URL:
+    # SonarCloud (regla de seguridad, Bloqueador): antes había un valor por defecto
+    # con MySQL sin contraseña. Ahora la conexión debe configurarse explícitamente.
+    raise RuntimeError(
+        "Falta SITRAL_DATABASE_URL en backend/.env "
+        "(ejemplo: mysql+pymysql://usuario:contraseña@localhost/SITRAL)"
+    )
 SQL_ECHO = _bool("SITRAL_SQL_ECHO", False)
 
 CORS_ORIGINS = _lista("SITRAL_CORS_ORIGINS", "http://127.0.0.1:5500,http://localhost:5500")

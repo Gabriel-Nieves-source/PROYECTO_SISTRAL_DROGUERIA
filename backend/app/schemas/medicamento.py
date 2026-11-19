@@ -28,8 +28,8 @@ class MedicamentoRespuesta(BaseModel):
 
     id_medicamento: int
     nombre: str
-    presentacion: Optional[str]
-    concentracion: Optional[str]
-    codigo_barras: Optional[str]
+    presentacion: Optional[str] = None
+    concentracion: Optional[str] = None
+    codigo_barras: Optional[str] = None
     precio: Decimal
     estado: str

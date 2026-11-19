@@ -138,7 +138,7 @@ function showApp(session) {
   renderNav();
   const items = navItemsForRole();
   setActiveView(items[0]?.id);
-  checkConnection();
+  void checkConnection(); // promesa ignorada a propósito: solo actualiza el indicador
 }
 
 function showLogin() {

@@ -27,8 +27,8 @@ class ProveedorRespuesta(BaseModel):
 
     id_proveedor: int
     nombre: str
-    nit: Optional[str]
-    telefono: Optional[str]
-    correo: Optional[str]
-    direccion: Optional[str]
+    nit: Optional[str] = None
+    telefono: Optional[str] = None
+    correo: Optional[str] = None
+    direccion: Optional[str] = None
     estado: str

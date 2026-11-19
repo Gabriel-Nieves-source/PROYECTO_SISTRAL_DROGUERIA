@@ -28,6 +28,6 @@ class UsuarioRespuesta(BaseModel):
     id_usuario: int
     id_rol: int
     nombre: str
-    apellido: Optional[str]
+    apellido: Optional[str] = None
     usuario: str
     estado: str

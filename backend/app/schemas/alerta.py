@@ -11,8 +11,8 @@ class AlertaRespuesta(BaseModel):
     id_lote: int
     tipo: str
     mensaje: str
-    dias_restantes: Optional[int]
-    fecha_generacion: Optional[datetime]
+    dias_restantes: Optional[int] = None
+    fecha_generacion: Optional[datetime] = None
     estado: str
 
 

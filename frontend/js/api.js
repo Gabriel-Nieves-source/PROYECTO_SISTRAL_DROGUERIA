@@ -11,7 +11,10 @@ export function getApiBase() {
   return localStorage.getItem("sitral_api_base") || DEFAULT_BASE;
 }
 export function setApiBase(url) {
-  localStorage.setItem("sitral_api_base", url.replace(/\/+$/, ""));
+  // Quita las "/" finales sin expresión regular (SonarCloud: regex con backtracking)
+  let limpia = url.trim();
+  while (limpia.endsWith("/")) limpia = limpia.slice(0, -1);
+  localStorage.setItem("sitral_api_base", limpia);
 }
 export function getToken() {
   return localStorage.getItem("sitral_token");
