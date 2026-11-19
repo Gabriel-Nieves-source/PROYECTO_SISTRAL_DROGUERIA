@@ -1,0 +1,18 @@
+[project]
+name = "sitral"
+version = "0.8.0"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.mutmut]
+# Se mutan las reglas de negocio y la seguridad (no la configuración ni el main)
+paths_to_mutate = ["app/domain/", "app/auth/rate_limit.py"]
+tests_dir = ["tests/"]
+also_copy = ["app/"]
