@@ -1,0 +1,20 @@
+# Secretos
+.env
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.coverage
+coverage.xml
+test-results.xml
+mutants/
+badges/
+
+# Varios
+*.db
+.DS_Store
+Thumbs.db

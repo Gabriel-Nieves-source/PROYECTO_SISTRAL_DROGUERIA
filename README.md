@@ -1,89 +1,134 @@
-# SITRAL – Sistema de Trazabilidad y Control por Lotes para Droguerías
+# SITRAL — Sistema completo (backend + frontend + base de datos)
 
-<!-- Reemplace USUARIO/REPO y SU-ORGANIZACION_sitral por los valores reales -->
-[![CI SITRAL](https://github.com/USUARIO/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/USUARIO/REPO/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/USUARIO/REPO/actions/workflows/codeql.yml/badge.svg)](https://github.com/USUARIO/REPO/actions/workflows/codeql.yml)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=SU-ORGANIZACION_sitral&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SU-ORGANIZACION_sitral)
-[![Mutation Score](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/USUARIO/REPO/badges/mutation.json)](https://github.com/USUARIO/REPO/actions/workflows/ci.yml)
+[![CI SITRAL](https://github.com/Gabriel-Nieves-source/PROYECTO_SISTRAL_DROGUERIA/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel-Nieves-source/PROYECTO_SISTRAL_DROGUERIA/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Gabriel-Nieves-source/PROYECTO_SISTRAL_DROGUERIA/actions/workflows/codeql.yml/badge.svg)](https://github.com/Gabriel-Nieves-source/PROYECTO_SISTRAL_DROGUERIA/actions/workflows/codeql.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=Gabriel-Nieves-source_PROYECTO_SISTRAL_DROGUERIA&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Gabriel-Nieves-source_PROYECTO_SISTRAL_DROGUERIA)
+[![Mutation Score](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Gabriel-Nieves-source/PROYECTO_SISTRAL_DROGUERIA/badges/mutation.json)](https://github.com/Gabriel-Nieves-source/PROYECTO_SISTRAL_DROGUERIA/actions/workflows/ci.yml)
 
-API en FastAPI con autenticación JWT, autorización por roles (RBAC: `ADMIN`, `USER`),
-controles OWASP Top 10, Mutation Testing con mutmut y análisis con SonarCloud y CodeQL.
+Sistema de Trazabilidad y Control por Lotes para Droguerías. Este paquete
+trae las tres partes juntas, listas para montar en tu computador:
 
-## Cómo ejecutar el programa (Windows)
-
-Abra la carpeta del proyecto en VS Code y en la terminal (PowerShell) ejecute:
-
-```powershell
-# 1. Solo la primera vez: crear el entorno e instalar dependencias
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt -r requirements-dev.txt
-
-# 2. Solo la primera vez: crear el archivo .env
-copy .env.example .env
-python -c "import secrets; print(secrets.token_urlsafe(48))"
-#    -> pegue ese valor en SITRAL_JWT_SECRET= dentro de .env
-#    -> para probar sin MySQL deje: SITRAL_DATABASE_URL=sqlite:///./sitral_dev.db
-#    -> para ver /docs ponga: SITRAL_DEBUG=true
-
-# 3. Solo la primera vez: crear usuarios y códigos de prueba
-python -m scripts.crear_usuarios
-python -m scripts.generar_codigos_prueba
-
-# 4. Cada vez que quiera usar el programa
-.venv\Scripts\activate
-uvicorn app.main:app --reload
+```
+SITRAL_sistema_completo/
+├── backend/        → API en FastAPI (Python)
+├── frontend/        → aplicación web (HTML/CSS/JS puro, con lector de QR y código de barras)
+├── database/        → script SQL para crear la base de datos
+├── iniciar_windows.bat
+└── iniciar_mac_linux.sh
 ```
 
-Luego abra en el navegador:
+## 0. Requisitos previos
 
-- **http://localhost:8000/scanner**: lector de QR y códigos de barras (cámara, imagen o lector USB).
-- **http://localhost:8000/docs**: Swagger para probar los endpoints (solo con `SITRAL_DEBUG=true`).
+- **Python 3.10 o superior** instalado.
+- **MySQL** instalado y corriendo (puede ser MySQL Server, XAMPP, WAMP, etc.).
 
-Usuarios: `admin@sitral.co` / `AdminSegura#2026` (ADMIN) y `usuario@sitral.co` / `UserSegura#2026` (USER).
-En Mac/Linux cambie `.venv\Scripts\activate` por `source .venv/bin/activate` y `copy` por `cp`.
+## 1. Crear la base de datos
 
-## Lector de códigos QR y de barras
+1. Abre tu cliente de MySQL (consola, MySQL Workbench, phpMyAdmin, etc.).
+2. Crea la base de datos:
+   ```sql
+   CREATE DATABASE SITRAL;
+   ```
+3. Importa el script incluido:
+   ```bash
+   mysql -u root -p SITRAL < database/SITRAL.sql
+   ```
+   (con phpMyAdmin: entra a la base `SITRAL` → pestaña **Importar** → selecciona `database/SITRAL.sql`).
 
-Lee **QR, Code128, EAN-13/EAN-8, UPC y DataMatrix**, incluido **GS1 DataMatrix**, el código de los medicamentos
-que trae GTIN, lote y fecha de vencimiento. Cada código se clasifica así:
+4. Configura el archivo `backend/.env` (desde la Guía 8 las claves ya **no** van en el código):
+   ```bash
+   cd backend
+   copy .env.example .env          # Mac/Linux: cp .env.example .env
+   python -c "import secrets; print(secrets.token_urlsafe(48))"
+   ```
+   Abre `backend/.env` y:
+   - pega la clave generada en `SITRAL_JWT_SECRET=`
+   - en `SITRAL_DATABASE_URL` pon tu usuario y contraseña de MySQL
+     (si la contraseña tiene `@`, escríbelo como `%40`; ej. `12345@` → `12345%40`)
+   - si vas a usarlo desde el celular, agrega `http://TU_IP:5500` en `SITRAL_CORS_ORIGINS`
 
-| Tipo | Ejemplo | Qué muestra |
-|---|---|---|
-| LOTE | `LOT-2026-001` | Código de lote de SITRAL |
-| GS1 | `(01)07702001023455(17)270630(10)LOT-2026-003` | GTIN, lote, vencimiento y estado (VIGENTE / POR_VENCER / VENCIDO) |
-| PRODUCTO | `7702001023455` | GTIN / EAN del producto |
-| DESCONOCIDO | cualquier otro texto | El texto leído |
-
-Formas de leer en http://localhost:8000/scanner:
-1. **Cámara** del PC o del celular. La cámara solo funciona en `localhost` o con HTTPS.
-2. **Subir imagen**: puede usar las imágenes de `codigos_prueba/`.
-3. **Lector USB o Bluetooth**: funcionan como un teclado; haga clic en el campo de texto y escanee.
-
-Endpoints: `POST /scanner/decodificar` (imagen, máx. 5 MB) y `POST /scanner/interpretar` (texto), ambos con token.
-
-## Endpoints de prueba (Guía 8)
-
-| Método | Ruta | Acceso | Respuesta esperada |
-|---|---|---|---|
-| POST | `/auth/login` | Público | 200 + token / 401 / 429 tras 5 intentos |
-| GET | `/admin/dashboard` | Solo `ADMIN` | 200 admin · 403 user · 401 sin token |
-| GET | `/users/me` | `USER` y `ADMIN` | 200 con perfil (sin hash) |
-
-## Pruebas y calidad
+## 2. Instalar y arrancar el backend (la API)
 
 ```bash
-pytest --cov --cov-report=term-missing      # 75 pruebas, ~96 % cobertura
-mutmut run && mutmut export-cicd-stats      # 68 mutantes
-python scripts/mutation_gate.py --min 50    # falla si el score < 50 %
+cd backend
+pip install -r requirements.txt
+python actualizar_passwords.py       # deja las contraseñas de prueba listas para iniciar sesión
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Secretos que debe crear en GitHub (Settings → Secrets and variables → Actions)
+Verifica que quedó funcionando abriendo `http://127.0.0.1:8000/docs` en el navegador.
 
-- `SONAR_TOKEN`: token de sonarcloud.io (My Account → Security).
-- `SITRAL_JWT_SECRET_TEST`: cadena aleatoria de 32+ caracteres para las pruebas.
+**Déjala corriendo** (no cierres esa terminal) y sigue con el siguiente paso en otra terminal.
 
-## Seguridad en GitHub (Settings → Code security)
+## 3. Arrancar el frontend (la página web)
 
-Activar: Dependency graph, Dependabot alerts, Dependabot security updates,
-Code scanning (CodeQL ya viene en `.github/workflows/codeql.yml`) y Secret scanning.
+```bash
+cd frontend
+python -m http.server 5500
+```
+
+Abre en el navegador: `http://127.0.0.1:5500`
+
+## 4. Iniciar sesión
+
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| `admin` | `admin123` | Administrador |
+| `farmaceuta` | `farm123` | Farmaceuta |
+
+(Estas quedan activas después de ejecutar `actualizar_passwords.py` en el paso 2.)
+
+## 5. Usarlo desde el celular (para probar el lector de QR/código de barras)
+
+1. Conecta el celular a la **misma red Wi-Fi** que el computador.
+2. En el computador averigua tu IP local:
+   - Windows: `ipconfig` (busca "Dirección IPv4", algo como `192.168.1.25`)
+   - Mac/Linux: `ifconfig` o `ip a`
+3. En el celular abre el navegador y entra a `http://TU_IP:5500`.
+4. En la pantalla de ingreso, despliega **"Dirección del servidor"** y escribe
+   `http://TU_IP:8000` (la IP del computador — `127.0.0.1` en el celular
+   apuntaría al propio celular, no sirve).
+5. Inicia sesión normalmente. La primera vez que uses el botón de escanear
+   (en Medicamentos, Lotes o Facturación), el navegador pedirá permiso de
+   cámara — acéptalo.
+
+   > Nota: algunos navegadores de celular exigen una conexión seguara
+   > (HTTPS) para permitir la cámara al entrar por IP. Si la cámara no se
+   > activa, la aplicación sigue funcionando: siempre queda el campo para
+   > escribir el código manualmente.
+
+## Atajos incluidos
+
+Para no escribir los comandos cada vez, este paquete trae dos scripts que
+abren el backend y el frontend automáticamente, cada uno en su propia
+ventana:
+
+- **Windows**: doble clic en `iniciar_windows.bat`
+- **Mac/Linux**: en una terminal, dentro de esta carpeta, ejecuta
+  `bash iniciar_mac_linux.sh`
+
+(La primera vez sigue siendo necesario hacer los pasos 1 y 2 —crear la base
+de datos, instalar dependencias y actualizar las contraseñas— una sola vez;
+los scripts solo automatizan el arranque de los dos servidores.)
+
+## Guía 8: calidad DevSecOps y seguridad
+
+| Qué | Dónde |
+|---|---|
+| Pruebas automatizadas (70) con SQLite, sin MySQL | `backend/tests/` → `cd backend && pytest --cov` |
+| Mutation Testing (mutmut, 46 mutantes, 100 %) | `backend/pyproject.toml`, `backend/app/domain/inventario.py` |
+| Pipeline CI/CD (pruebas, SonarCloud, mutmut con umbral del 50 %) | `.github/workflows/ci.yml` |
+| CodeQL y Dependabot | `.github/workflows/codeql.yml`, `.github/dependabot.yml` |
+| Configuración segura (`.env`) | `backend/app/config.py`, `backend/.env.example` |
+| JWT con iss/aud y rol leído de la BD | `backend/app/security.py` |
+| Bloqueo tras 5 intentos fallidos de login | `backend/app/rate_limit.py` |
+| Cabeceras de seguridad HTTP | `backend/app/middleware/security_headers.py` |
+
+**Secreto necesario en GitHub** (Settings → Secrets and variables → Actions): `SONAR_TOKEN`.
+
+## Documentación adicional
+
+- `backend/DOCUMENTACION_API.md`: documentación completa de todos los
+  endpoints de la API.
+- `frontend/README.md`: detalles del frontend (estructura de archivos,
+  permisos por rol, cómo ajustar rutas si cambia algo en el backend).

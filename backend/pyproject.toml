@@ -1,0 +1,18 @@
+[project]
+name = "sitral"
+version = "1.1.0"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.mutmut]
+# Reglas de negocio de inventario y el limitador de intentos de login
+paths_to_mutate = ["app/domain/", "app/rate_limit.py"]
+tests_dir = ["tests/"]
+also_copy = ["app/"]
