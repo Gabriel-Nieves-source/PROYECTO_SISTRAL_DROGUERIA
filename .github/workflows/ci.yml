@@ -17,7 +17,7 @@ jobs:
   test-and-quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # SonarCloud necesita el historial completo
 
@@ -48,7 +48,7 @@ jobs:
     permissions:
       contents: write # solo para publicar el JSON del badge en la rama "badges"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
