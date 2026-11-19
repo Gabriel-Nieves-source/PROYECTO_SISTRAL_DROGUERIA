@@ -34,7 +34,7 @@ jobs:
         run: pytest --cov --cov-report=xml:coverage.xml --junitxml=test-results.xml
 
       - name: Análisis SonarCloud (Quality Gate)
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v8
         with:
           projectBaseDir: .
           args: >
